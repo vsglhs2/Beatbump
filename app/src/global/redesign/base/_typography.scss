@@ -1,0 +1,133 @@
+@use "./variables" as v;
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.h1,
+.h2,
+.h3,
+.h4,
+.h5,
+.h6,
+.subheading {
+	font-family: "Commissioner Variable", sans-serif;
+
+	line-height: 1.2;
+	font-weight: 500;
+	margin: 0.5em 0 1.38rem;
+}
+
+h1,
+.h1 {
+	font-size: 2.488rem;
+	font-weight: 700;
+	letter-spacing: -0.03em;
+}
+
+h2,
+.h2 {
+	font-size: 2.074rem;
+	font-weight: 700;
+}
+
+h3,
+.h3 {
+	font-size: 1.728em;
+}
+
+h4,
+.h4 {
+	font-size: 1.44em;
+}
+
+h5,
+.h5 {
+	font-size: 1.2em;
+}
+
+h6,
+.h6 {
+	font-size: 1em;
+}
+
+p {
+	margin: 0 0 v.$sm-spacing;
+	font-size: 1em;
+}
+
+a.no-style {
+	text-decoration: none;
+	&:focus,
+	&:focus-visible,
+	&:focus-within {
+		outline: none;
+	}
+}
+
+a:not(.no-style),
+.link:not(.no-style) {
+	$link-color: rgb(245, 245, 245);
+	color: rgb(245, 245, 245);
+
+	text-decoration: none;
+	transition: color 0.2s;
+	display: inline;
+	&.link {
+		font-weight: 500;
+	}
+	&:active,
+	&:focus,
+	&:hover {
+		-webkit-text-decoration: underline 0.001em solid;
+		text-decoration: underline 0.001em solid;
+		text-underline-offset: 0.001em;
+		color: darken($link-color, 15%);
+		outline: none;
+	}
+	&:hover {
+		cursor: pointer;
+	}
+}
+
+.explicit {
+	text-shadow: none;
+	/* max-height: 1em; */
+	min-width: 0.8rem;
+	min-height: 0.8rem;
+	/* width: 1em; */
+	position: relative;
+	place-content: center;
+	display: inline-flex;
+	// contain: paint;
+	background-image: url("data:image/svg+xml;base64,CTxzdmcKeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJwogICAgICAgIHdpZHRoPSIxNiIKICAgICAgICBoZWlnaHQ9IjE2IgoJCWlkPSJleHBsaWNpdCIKCQl2aWV3Qm94PSIwIDAgMTYgMTYiCgk+CgkJPHBhdGgKCQkJZmlsbD0iY3VycmVudENvbG9yIgoJCQlkPSJNMi41IDBBMi41IDIuNSAwIDAgMCAwIDIuNXYxMUEyLjUgMi41IDAgMCAwIDIuNSAxNmgxMWEyLjUgMi41IDAgMCAwIDIuNS0yLjV2LTExQTIuNSAyLjUgMCAwIDAgMTMuNSAwaC0xMVptNC4zMjYgMTAuODhIMTAuNVYxMmgtNVY0LjAwMmg1djEuMTJINi44MjZWNy40aDMuNDU3djEuMDczSDYuODI2djIuNDA4WiIKCQk+PC9wYXRoPgogICAgPC9zdmc+");
+	text-rendering: geometricPrecision;
+	font-size: calc(1.6px + 0.8vw);
+	line-height: 1;
+	// aspect-ratio: 1/1;
+	vertical-align: middle;
+	$color: rgb(175, 175, 175);
+	color: $color;
+}
+
+a small {
+	$color: rgb(175, 175, 175);
+	font-size: 0.95rem;
+	font-weight: 700;
+	font-variant-caps: all-petite-caps;
+	letter-spacing: 0.05rem;
+	transition: ease-in color 75ms;
+	color: $color;
+	&:hover {
+		color: lighten($color, 30%);
+		text-decoration: underline 0.001rem solid;
+		text-underline-offset: 0.001rem;
+	}
+}
+
+.secondary {
+	color: rgba(255, 255, 255, 0.7) !important;
+	font-weight: 400;
+}

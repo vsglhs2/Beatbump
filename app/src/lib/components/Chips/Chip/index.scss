@@ -1,0 +1,24 @@
+.chip {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-sizing: border-box;
+	border-radius: 1rem;
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	font-size: 1.125em;
+	background: #fff;
+	color: #030303;
+	background: rgba(255, 255, 255, 0.1);
+	color: #fff;
+	border-radius: 999999rem;
+	border: none;
+	height: 2.25em;
+	padding: 0.5em 1em;
+
+	white-space: nowrap;
+
+	&.selected {
+		background-color: #fff;
+		color: #131313;
+	}
+}

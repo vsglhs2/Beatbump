@@ -1,0 +1,52 @@
+# https://www.robotstxt.org/robotstxt.html
+
+User-agent: facebookexternalhit/1.0 (+http://www.facebook.com/externalhit_uatext.php)
+Disallow:/
+
+User-agent: facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)
+Disallow:/
+
+User-agent: facebookexternalhit/1.1
+Disallow:/
+
+User-agent: Facebot
+Disallow:/
+
+User-agent: serpstatbot/2.1
+Disallow:/
+
+User-agent: SemrushBot/7~bl
+Disallow:/
+
+User-agent: Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)
+Disallow:/api
+
+User-agent: Googlebot
+Disallow:/api
+
+User-agent: Mozilla/5.0 (compatible; SemrushBot-SA/0.97; +http://www.semrush.com/bot.html)
+Disallow:/
+
+User-agent: SemrushBot-SA
+Disallow:/
+
+User-agent: SemrushBot
+Disallow:/
+
+User-agent: bot
+Disallow:/
+
+User-agent: crawler
+Disallow:/
+
+User-agent: spider
+Disallow:/
+
+User-agent: robot
+Disallow:/
+
+User-agent: Crawling
+Disallow:/
+
+User-agent: Pingdom
+Disallow:/
