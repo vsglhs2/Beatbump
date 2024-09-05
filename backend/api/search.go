@@ -30,14 +30,14 @@ func SearchEndpointHandler(c echo.Context) error {
 		filterId = searchFilters[filter]
 	}
 
-	if query == "" {
-		return c.String(http.StatusInternalServerError, fmt.Sprintf("Missing required param: query"))
+	ctoken := urlQuery.Get("ctoken")
+	itct := urlQuery.Get("itct")
+
+	if query == "" && itct == "" && ctoken == "" {
+		return c.String(http.StatusInternalServerError, fmt.Sprintf("Missing required params"))
 	}
 
 	queryUnescape, err := url.QueryUnescape(query)
-
-	ctoken := urlQuery.Get("ctoken")
-	itct := urlQuery.Get("itct")
 
 	var responseBytes []byte
 	if itct != "" && ctoken != "" {
