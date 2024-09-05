@@ -4,7 +4,6 @@ import (
 	"beatbump-server/backend/api"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"net/http"
 )
 
 func main() {
@@ -17,20 +16,8 @@ func main() {
 		Root:       "./build",
 		Browse:     true,
 		IgnoreBase: true,
+		HTML5:      true,
 	}))
-	e.Static("/static", "static")
-	// Custom 404 handler
-	e.HTTPErrorHandler = func(err error, c echo.Context) {
-		code := http.StatusInternalServerError
-		if he, ok := err.(*echo.HTTPError); ok {
-			code = he.Code
-		}
-		if code == http.StatusNotFound {
-			c.Redirect(http.StatusFound, "/")
-		} else {
-			c.String(code, http.StatusText(code))
-		}
-	}
 
 	e.GET("/api/v1/search.json", api.SearchEndpointHandler)
 	e.GET("/api/v1/player.json", api.PlayerEndpointHandler)
