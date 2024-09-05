@@ -7,6 +7,7 @@ export interface PlayerFormats {
 	dash?: string;
 	streams?: { url: string; original_url: string; mimeType: string }[];
 	video?: string;
+    duration?:number;
 }
 
 /** Creates a new `redirector.googlevideo.com` URL */
@@ -76,6 +77,7 @@ export function sort({
 		("?host=" + host);
 
 	let video = "";
+    let duration = -1;
 
 	const arr = filterMap<
 		Record<string, string>,
@@ -89,6 +91,10 @@ export function sort({
 				url.host = new URL(proxyUrl).host;
 			}
 			const itag = parseInt(item.itag.toString());
+
+            if (duration === -1 && item?.approxDurationMs) {
+                duration = parseInt(item.approxDurationMs)
+            }
 
 			if (!video && YOUTUBE_MP4_VIDEO_ONLY_ITAGS.includes(itag)) {
 				if (video) return null;
@@ -118,5 +124,6 @@ export function sort({
 		dash: dash_manifest,
 		streams: arr as NonNullable<(typeof arr)[number]>[],
 		video,
+        duration,
 	};
 }

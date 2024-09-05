@@ -78,7 +78,7 @@ class AudioSourceNode {
 
     constructor() {
         if (!browser) return;
-        
+
         const onUserInteractionCallback = () => {
             if (!this.playerNode) {
                 this.setup();
@@ -109,9 +109,9 @@ class AudioSourceNode {
     private setup() {
         this.playerNode = new Audio();
         getPlayerVolumeFromLS(this.playerNode);
-        
+
         this.onPlayerEvent("play", () => {
-            
+
 
 }
 
@@ -211,9 +211,7 @@ class AudioPlayerImpl extends EventEmitter<{ c: string }> {
 
 		this.onEvent("timeupdate", async () => {
 			this._currentTimeStore.set(this.player.currentTime);
-			this._durationStore.set(
-				isAppleMobileDevice ? this.player.duration / 2 : this.player.duration,
-			);
+			//this._durationStore.set(this.player.duration);
 
 			if (this.nextSrc.stale) {
 				console.log("prefetching next track");

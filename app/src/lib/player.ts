@@ -30,7 +30,7 @@ export interface IEventHandler {
 	onEvent<K extends keyof HTMLElementEventMap>(type: K, cb: Callback<K>): void;
 }
 
-type SrcDict = { original_url: string; url: string; video_url?: string };
+type SrcDict = { original_url: string; url: string; video_url?: string; duration?: number };
 
 interface AudioPlayerEvents {
 	play: unknown;
@@ -450,9 +450,6 @@ class AudioPlayerImpl extends EventEmitter<AudioPlayerEvents> {
 		const promise = this.player.play();
 		if (promise) {
 			promise
-				.then(() => {
-					this.player.play();
-				})
 				.catch((e) => console.error("ERROR", e));
 		}
 	}
@@ -484,9 +481,11 @@ class AudioPlayerImpl extends EventEmitter<AudioPlayerEvents> {
 	public async updateSrc({
 		url,
 		videoUrl,
+        duration
 	}: {
 		videoUrl?: string;
 		url: string;
+        duration?: number;
 	}) {
 		if (url === undefined) return;
 
@@ -499,6 +498,14 @@ class AudioPlayerImpl extends EventEmitter<AudioPlayerEvents> {
 		} else {
 			this.player.src = url;
 		}
+
+        if (duration != undefined && duration != -1){
+            this._durationStore.set(duration / 1000);
+            setPosition(
+                0,
+                duration / 1000,
+            );
+        }
 
 		this.nextSrc.url = undefined;
 		this.setStaleTimeout();
@@ -594,6 +601,7 @@ class AudioPlayerImpl extends EventEmitter<AudioPlayerEvents> {
 			this.videoPlayer?.remove();
 		});
 
+
 		this.onEvent("loadedmetadata", async () => {
 			this._paused.set(false);
 			if (this.videoNode)
@@ -604,17 +612,19 @@ class AudioPlayerImpl extends EventEmitter<AudioPlayerEvents> {
 				});
 
 			await this.videoPlayer?.play();
+            this._paused.set(false);
+            this.play();
 			await tick();
 			groupSession.resetAllCanPlay();
 
 			this.setStaleTimeout();
 			this.nextSrc.url = undefined;
-			this._currentTimeStore.set(this.player.currentTime);
+			this._currentTimeStore.set(0);
 
-			const duration = isAppleMobileDevice
+			/*const duration = isAppleMobileDevice
 				? this.player.duration / 2
-				: this.player.duration;
-			this._durationStore.set(duration);
+				: this.player.duration;*/
+			//this._durationStore.set(this.player.duration);
 
 			if (syncTabs.role === "host") {
 				syncTabs.updatePosition(SessionListService.position);
@@ -626,7 +636,7 @@ class AudioPlayerImpl extends EventEmitter<AudioPlayerEvents> {
 			}
 
 			metaDataHandler({
-				duration: this.player.duration,
+				duration: this.duration,
 				currentTime: this.player.currentTime,
 				sessionList: SessionListService.$.value,
 			});
@@ -643,14 +653,15 @@ class AudioPlayerImpl extends EventEmitter<AudioPlayerEvents> {
 			}
 		});
 
+
 		this.onEvent("timeupdate", async () => {
 			this._currentTimeStore.set(this.player.currentTime);
-			const duration = isAppleMobileDevice
+			/*const duration = isAppleMobileDevice
 				? this.player.duration / 2
-				: this.player.duration;
+				: this.player.duration;*/
 
 			// We're at the end - get the next track!
-			if (this.player.currentTime >= duration - 0.1 && !locked) {
+			if (this.player.currentTime >= this.duration - 1.0 && !locked) {
 				try {
 					if (this._repeat !== "off") {
 						const allowContinuation = await this.handleRepeat();
@@ -696,16 +707,12 @@ class AudioPlayerImpl extends EventEmitter<AudioPlayerEvents> {
 			if (
 				this.player?.error?.message.includes("Empty src") ||
 				!this.player?.error?.message
-			)
-				return;
+			) return;
 
 			console.error(this.player.error);
 			this.handleError();
 		});
 
-        this.onEvent("canplay", () => {
-            this.player.play()
-        });
 
         this.on("update:stream_type", async ({ type }) => {
             this.setType(type);
@@ -732,8 +739,8 @@ class AudioPlayerImpl extends EventEmitter<AudioPlayerEvents> {
 	private setStaleTimeout() {
 		if (this.invalidationTimer) clearTimeout(this.invalidationTimer);
 
-		const remainingTime = this.player.duration - this.player.currentTime;
-		const halfwayTime = this.player.duration / 2;
+		const remainingTime = this.duration - this.player.currentTime;
+		const halfwayTime = this.duration / 2;
 
 		const timeoutDuration = Math.max(halfwayTime - remainingTime / 2, 0);
 		this.invalidationTimer = setTimeout(() => {
@@ -745,8 +752,8 @@ class AudioPlayerImpl extends EventEmitter<AudioPlayerEvents> {
 export const AudioPlayer = new AudioPlayerImpl();
 
 /** Updates the current track for the audio player */
-export function updatePlayerSrc({ url, video_url }: SrcDict): void {
-	AudioPlayer.updateSrc({ url, videoUrl: video_url });
+export function updatePlayerSrc({ url, video_url,duration }: SrcDict): void {
+	AudioPlayer.updateSrc({ url, videoUrl: video_url,duration });
 }
 
 // Get source URLs
@@ -801,6 +808,7 @@ function setTrack(formats: PlayerFormats, shouldAutoplay: boolean) {
 			video_url: formats.video,
 			original_url: format.original_url,
 			url: format.url,
+            duration: formats.duration
 		});
 	return {
 		body: format
