@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { onMount } from "svelte";
+	import { invalidate } from "$app/navigation";
 	import Chips from "$components/Chips/Chips.svelte";
 	import viewport from "$lib/actions/viewport";
 	import Carousel from "$lib/components/Carousel/Carousel.svelte";
@@ -8,38 +8,18 @@
 	import { homeChipContext } from "$lib/contexts";
 	import type { PageData } from "./$types";
     import { SERVER_DOMAIN } from "../../../env";
-    import {page} from "$app/stores";
-    import {invalidateAll} from "$app/navigation";
+
 	export let data: PageData;
 
-
-    async function updateContent() {
-        try {
-            const params = $page.url.searchParams.get('params')
-            const response = await fetch(`${SERVER_DOMAIN}/api/v1/home.json${params ? `?params=${params}` : ""}`);
-            if (!response.ok) {
-                throw new Error('Failed to fetch data');
-            }
-            const result = await response.json();
-            data = ({...result});
-        } catch (err) {
-            console.log(err)
-        }
-    }
-
-    onMount(async () => {
-        await updateContent();
-    });
-
-    $: ({
-        carousels,
-        chips,
-        params,
-        headerThumbnail,
-        continuations,
-        visitorData,
-        path,
-    } = data);
+	$: ({
+		carousels,
+		chips,
+		params,
+		headerThumbnail,
+		continuations,
+		visitorData,
+		path,
+	} = data);
 
 	let loading = false;
 	let hasData = false;
@@ -67,7 +47,7 @@
 		class="gradient"
 		style="--theme: var(--base-bg);"
 	/>
-	{#if headerThumbnail && headerThumbnail.length !== 0}
+	{#if headerThumbnail.length !== 0}
 		<picture>
 			{#each headerThumbnail as thumbnail, i}
 				{#if i === 0}
@@ -99,22 +79,19 @@
 	<Chips
 		{chips}
 		on:click={() => {
-            invalidateAll()
-			updateContent();
+			invalidate("home:load");
 		}}
 	/>
-    {#if carousels}
-        {#each carousels as carousel (carousel.items)}
-            <Carousel
-                items={carousel.items}
-                header={carousel.header}
-                type="trending"
-                kind={carousel.header?.type}
-                isBrowseEndpoint={false}
-            />
-        {/each}
-    {/if}
-	{#if continuations && Object.keys(continuations).length}
+	{#each carousels as carousel (carousel.items)}
+		<Carousel
+			items={carousel.items}
+			header={carousel.header}
+			type="trending"
+			kind={carousel.header?.type}
+			isBrowseEndpoint={false}
+		/>
+	{/each}
+	{#if Object.keys(continuations).length}
 		<div
 			class="viewport"
 			use:viewport={{ margin: "100px" }}
