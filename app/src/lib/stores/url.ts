@@ -61,23 +61,28 @@ export const playbackURLStateUpdater = ((defaultValue: boolean) => {
 			}
 		},
 		toggle() {
-			if (!browser) return;
+
+			/*if (!browser) return;
 			enabled = !enabled;
 			if (enabled) {
 				if (!window.location.pathname.includes("listen"))
 					lastNonListenURL = window.location.href;
+                console.log("push")
+                console.log(currentURL.toString())
 				window.history.pushState(
 					window.history.state,
 					"",
 					currentURL.toString(),
 				);
 			} else if (!enabled && lastNonListenURL) {
+                console.log("push2")
+                console.log(currentURL.toString())
 				window.history.pushState(
 					window.history.state,
 					"",
 					lastNonListenURL.toString(),
 				);
-			}
+			}*/
 		},
 		dispose: () => {
 			if (!browser) return;
