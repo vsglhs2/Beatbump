@@ -7,10 +7,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/labstack/echo/v4"
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/labstack/echo/v4"
 )
 
 type PlayerAPIResponse struct {
@@ -32,7 +33,10 @@ func PlayerEndpointHandler(c echo.Context) error {
 
 	var responseBytes []byte
 	var err error
-	if authObj.AuthType == auth.AUTH_TYPE_OAUTH {
+	if authObj.AuthType == auth.AUTH_TYPE_INVIDIOUS {
+		potRequired = false
+		responseBytes, err = callPlayerAPI(api.WebMusic, videoId, playlistId, authObj)
+	} else if authObj.AuthType == auth.AUTH_TYPE_OAUTH {
 		responseBytes, err = callPlayerAPI(api.IOS_MUSIC, videoId, playlistId, authObj)
 	} else if authObj.AuthType == auth.AUTH_TYPE_COOKIES {
 		//default cookies - web_creator / tv
@@ -50,7 +54,7 @@ func PlayerEndpointHandler(c echo.Context) error {
 	var playerResponse _youtube.PlayerResponse
 	err = json.Unmarshal(responseBytes, &playerResponse)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, "Unable to parse reeponse: "+err.Error()+" (using:"+getAuthTypeString(authObj)+")")
+		return c.JSON(http.StatusInternalServerError, "Unable to parse response: "+err.Error()+" (using:"+getAuthTypeString(authObj)+")")
 	}
 
 	if playerResponse.PlayabilityStatus.Status != "OK" {
@@ -76,7 +80,10 @@ func PlayerEndpointHandler(c echo.Context) error {
 			if err != nil {
 				continue
 			}
-			resultUrl, err = api.DecipherNsig(resultUrl, videoId)
+			// TODO: when using invidious, this function fall with error
+			if authObj.AuthType != auth.AUTH_TYPE_INVIDIOUS {
+				resultUrl, err = api.DecipherNsig(resultUrl, videoId)
+			}
 			streamUrl = resultUrl.String()
 		}
 

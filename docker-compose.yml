@@ -1,0 +1,47 @@
+services:
+  invidious_companion:
+    image: quay.io/invidious/invidious-companion:latest
+    environment:
+      - PORT=${INVIDIOUS_PORT}
+      - SERVER_SECRET_KEY=${INVIDIOUS_BEARER_TOKEN}
+    ports:
+      - ${INVIDIOUS_PORT}:${INVIDIOUS_PORT}
+    restart: unless-stopped
+    cap_drop:
+      - ALL
+    read_only: true
+    user: 10001:10001
+    volumes:
+      - /var/tmp/youtubei.js:/var/tmp/youtubei.js:rw
+    security_opt:
+      - no-new-privileges:true
+  beatbump:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - INVIDIOUS_HOST=invidious_companion
+    ports:
+      - 8080:8080
+    depends_on:
+      - invidious_companion
+    
+  caddy:
+    image: caddy:<version>
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - $PWD/conf:/etc/caddy
+      - $PWD/site:/srv
+      - caddy_data:/data
+      - caddy_config:/config
+    profiles: [server]
+
+volumes:
+  caddy_data:
+  caddy_config:

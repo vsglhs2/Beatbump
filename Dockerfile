@@ -50,6 +50,7 @@ RUN apt-get update && apt install ca-certificates -y
 WORKDIR /app
 
 COPY --from=build /beat-server /app/beat-server
+COPY .env /app/.env
 COPY --from=frontend-builder /app/build /app/build
 
 # Optional:

@@ -2,6 +2,7 @@ package auth
 
 import (
 	"fmt"
+
 	"github.com/labstack/echo/v4"
 	"golang.org/x/oauth2"
 )
@@ -10,6 +11,7 @@ const (
 	AUTH_TYPE_NONE = iota
 	AUTH_TYPE_OAUTH
 	AUTH_TYPE_COOKIES
+	AUTH_TYPE_INVIDIOUS
 )
 
 type AuthContext struct {
@@ -31,8 +33,11 @@ func AuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 		ac.AuthContext.AuthType = AUTH_TYPE_NONE
 
 		cookie := c.Request().Header.Get("X-Google-Cookie")
+		useInvidious := c.Request().Header.Get("X-Use-Invidious")
 
-		if cookie != "" {
+		if useInvidious != "" {
+			ac.AuthContext.AuthType = AUTH_TYPE_INVIDIOUS
+		} else if cookie != "" {
 			ac.AuthContext.AuthType = AUTH_TYPE_COOKIES
 			ac.AuthContext.CookieHeader = cookie
 		} else {

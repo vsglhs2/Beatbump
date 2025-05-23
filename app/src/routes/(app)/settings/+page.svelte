@@ -212,6 +212,23 @@
                     </div>
                 </div>
             </div>
+            <div class="setting">
+                <label for="invidious">
+                    Enable invidious companion
+                </label>
+                <div class="input-container">
+                    <div class="input no-btn mb-1">
+                        <input
+                            type="text"
+                            on:input={(e) => {
+								let value = e.currentTarget.value;
+                                localStorage.setItem('x-use-invidious',value);
+							}}
+                            value={localStorage.getItem("x-use-invidious")}
+                        />
+                    </div>
+                </div>
+            </div>
            <!-- <div class="setting">
                 <label>Remember Last Track</label>
                 <input

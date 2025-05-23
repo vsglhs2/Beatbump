@@ -3,13 +3,19 @@ package main
 import (
 	"beatbump-server/backend/_youtube/api/auth"
 	"beatbump-server/backend/api"
+
+	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
 func main() {
-
 	e := echo.New()
+
+	err := godotenv.Load()
+	if err != nil {
+		e.Logger.Fatal("Error loading .env file")
+	}
 
 	e.Use(middleware.CORS())
 	e.Use(LoggingMiddleware)

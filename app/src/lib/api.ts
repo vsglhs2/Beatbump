@@ -5,10 +5,14 @@ export const APIClient = {
     fetch: (url: string): Promise<Response> => {
         const headers: Record<string, string> = {}
         let cookieHeader = localStorage.getItem('x-google-cookie');
+        let invidiousHeader = localStorage.getItem('x-use-invidious');
         let clientSecret = localStorage.getItem('x-google-client-secret');
         let clinetId = localStorage.getItem('x-google-client-id');
         if (cookieHeader != undefined && cookieHeader != "") {
             headers["X-Google-Cookie"] = cookieHeader || ""
+        }
+        if (invidiousHeader != undefined && invidiousHeader != "") {
+            headers["X-Use-Invidious"] = invidiousHeader || ""
         }
         if (clinetId != undefined && clinetId != "") {
             headers["x-google-client-id"] = clinetId || ""

@@ -65,7 +65,10 @@ func fixupNsigJsCode(jscode string) string {
 	}
 }
 
-func GetPlayerInfo(videoId string, auth *auth.Auth) (*PlayerInfo, error) {
+func GetPlayerInfo(videoId string, authbj *auth.Auth) (*PlayerInfo, error) {
+	if authbj != nil && authbj.AuthType == auth.AUTH_TYPE_INVIDIOUS {
+		return &PlayerInfo{}, nil
+	}
 
 	videoId = "l6_w3887Rwo"
 
@@ -74,7 +77,7 @@ func GetPlayerInfo(videoId string, auth *auth.Auth) (*PlayerInfo, error) {
 	}
 
 	// Step 1: Fetch the test video HTML response
-	playerJSBody, playerId, inntertubeJson, err := getPlayerConfigJS(videoId, auth)
+	playerJSBody, playerId, inntertubeJson, err := getPlayerConfigJS(videoId, authbj)
 
 	if err != nil {
 		return nil, err

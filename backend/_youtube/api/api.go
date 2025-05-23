@@ -15,12 +15,17 @@ import (
 	"net/http/cookiejar"
 	"net/http/httputil"
 	"net/url"
+	"os"
 	"strconv"
 	"strings"
 	"time"
 )
 
 const URL_BASE = "https://music.youtube.com/youtubei/v1/"
+
+var INVIDIOUS_HOST = os.Getenv("INVIDIOUS_HOST")
+var INVIDIOUS_PORT = os.Getenv("INVIDIOUS_PORT")
+var INVIDIOUS_BEARER_TOKEN = os.Getenv("INVIDIOUS_BEARER_TOKEN")
 
 const DEBUG = false
 
@@ -198,9 +203,30 @@ func Next(videoId string, playlistId string, client ClientInfo, params Params, a
 
 }
 
-func Player(videoId string, playlistId string, client ClientInfo, params Params, authObj *auth.Auth) ([]byte, error) {
+func getEnv(key, fallback string) string {
+	if value, ok := os.LookupEnv(key); ok {
+		return value
+	}
+	return fallback
+}
 
-	playerUrl := URL_BASE + "player" + "?prettyPrint=false"
+func getPlayerUrl(authObj *auth.Auth) string {
+	INVIDIOUS_HOST := getEnv("INVIDIOUS_HOST", "localhost")
+	INVIDIOUS_PORT := getEnv("INVIDIOUS_PORT", "8282")
+
+	var base string
+
+	if authObj.AuthType == auth.AUTH_TYPE_INVIDIOUS {
+		base = "http://" + INVIDIOUS_HOST + ":" + INVIDIOUS_PORT + "/youtubei/v1/"
+	} else {
+		base = URL_BASE
+	}
+
+	return base + "player" + "?prettyPrint=false"
+}
+
+func Player(videoId string, playlistId string, client ClientInfo, params Params, authObj *auth.Auth) ([]byte, error) {
+	playerUrl := getPlayerUrl(authObj)
 
 	innertubeContext := prepareInnertubeContext(client, nil)
 	state, err := GetPlayerInfo(videoId, authObj)
@@ -245,7 +271,6 @@ func DownloadWebpage(urlAddress string, clientInfo ClientInfo, authbj *auth.Auth
 }
 
 func callAPI(urlAddress string, requestPayload innertubeRequest, clientInfo ClientInfo, authbj *auth.Auth) ([]byte, error) {
-
 	req, err := http.NewRequest(http.MethodPost, urlAddress, nil)
 
 	if err != nil {
@@ -287,6 +312,9 @@ func doRequest(clientInfo ClientInfo, authbj *auth.Auth, req *http.Request, requ
 			timestampString := strconv.FormatInt(timestamp, 10)
 			req.Header.Set("X-Goog-Request-Time", timestampString)
 			//	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:88.0) Gecko/20100101 Firefox/88.0 Cobalt/Version")
+		} else if authbj != nil && authbj.AuthType == auth.AUTH_TYPE_INVIDIOUS {
+			INVIDIOUS_BEARER_TOKEN := os.Getenv("INVIDIOUS_BEARER_TOKEN")
+			req.Header.Set("Authorization", "Bearer "+INVIDIOUS_BEARER_TOKEN)
 		} else {
 			poToken := GetPoToken()
 			if poToken != nil {
