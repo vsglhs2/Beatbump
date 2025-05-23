@@ -44,7 +44,7 @@ func PlayerEndpointHandler(c echo.Context) error {
 	} else {
 		// no auth clients - tv / ios
 		potRequired = true
-		responseBytes, err = callPlayerAPI(api.WebMusic, videoId, playlistId, authObj)
+		responseBytes, err = callPlayerAPI(api.ANDROID_VR, videoId, playlistId, authObj)
 	}
 
 	if err != nil {
@@ -95,6 +95,7 @@ func PlayerEndpointHandler(c echo.Context) error {
 		}
 
 		if err != nil {
+			fmt.Println("failed to decrypt - %s", err)
 			continue
 		}
 		format.URL = strings.Clone(streamUrl)
