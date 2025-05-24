@@ -13,8 +13,16 @@
   # TODO: add a more handy way to allow only whitelist ips
   # @blocked not remote_ip some-ip
   # abort @blocked
+
+  @audio_proxy {
+		path /api/v1/proxy /api/v1/proxy/*
+	}
+
+  reverse_proxy @audio_proxy proxy:3001 {
+    header_up X-Real-IP {remote_host}
+  }
  
   reverse_proxy beatbump:8080 {
-       header_up X-Real-IP {remote_host}
+    header_up X-Real-IP {remote_host}
   }
 }

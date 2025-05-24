@@ -1,7 +1,8 @@
 import type { Dict } from "$lib/types/utilities";
 import { buildDashManifest, type IFormat } from "$lib/utils/buildDashManifest";
 import { filterMap, map } from "$lib/utils/collections/array";
-import type { UserSettings } from "$stores/settings";
+import { PROXY_URL } from "../../env";
+
 export interface PlayerFormats {
 	hls?: string;
 	dash?: string;
@@ -36,37 +37,40 @@ export function sort({
 }): PlayerFormats {
 	let dash_manifest = "";
 
-	/*const proxyUrl = ($proxySettings as Required<UserSettings["network"]>)[
-		"Stream Proxy Server"
-	];*/
-	//const canProxy = $proxySettings["Proxy Streams"] === true;
+	// const proxyUrl = ($proxySettings as Required<UserSettings["network"]>)[
+	// 	"Stream Proxy Server"
+	// ];
+	// const canProxy = $proxySettings["Proxy Streams"] === true;
 
+	const canProxy = true;
+	const proxy_url = canProxy ? new URL(PROXY_URL, location.origin) : new URL("");
 
-	/*	//const proxy_url = canProxy ? new URL(proxyUrl) : new URL("");
-		const formats = map(
-			data?.streamingData?.adaptiveFormats as Array<IFormat>,
-			(item) => {
-				const url = new URL(item.url);
-				//const host = url.host;
-				//url.host = proxy_url.host ?? "hls.beatbump.io";
-				//url.searchParams.set("host", host);
-				return {
-					...item,
-					url: url.toString(),
-				};
-			},
-		);
-		const length = data?.videoDetails?.lengthSeconds;
+	const formats = map(
+		data?.streamingData?.adaptiveFormats as Array<IFormat>,
+		(item) => {
+			const url = new URL(item.url);
+			const host = url.host;
+			url.protocol = proxy_url.protocol;
+			url.host = proxy_url.host ?? "hls.beatbump.io";
+			url.pathname = proxy_url.pathname + url.pathname;
+			url.searchParams.set("host", host);
 
-		const manifest = buildDashManifest(formats, length);
-		dash_manifest =
-			"data:application/dash+xml;charset=utf-8;base64," + btoa(manifest);*/
+			return {
+				...item,
+				url: url.toString(),
+			};
+		},
+	);
+	const length = data?.videoDetails?.lengthSeconds;
 
+	const manifest = buildDashManifest(formats, length);
+	dash_manifest = "data:application/dash+xml;charset=utf-8;base64," + btoa(manifest);
 
-	//const host = data?.playerConfig?.hlsProxyConfig?.hlsChunkHost;
-	const formats: Array<any> = data?.streamingData
-		?.adaptiveFormats as Array<any>;
-	//const hostRegex = /https:\/\/(.*?)\//;
+	// const host = data?.playerConfig?.hlsProxyConfig?.hlsChunkHost;
+	// const formats: Array<any> = data?.streamingData
+	// 	?.adaptiveFormats as Array<any>;
+	// const hostRegex = /https:\/\/(.*?)\//;
+
 	const hls =
 		(data?.streamingData?.hlsManifestUrl as string);
 
@@ -111,7 +115,9 @@ export function sort({
 		},
 		(it) => !!it,
 	);
+
 	// Logger.log(`[LOG:STREAM-URLS]: `, arr);
+
 	return {
 		hls,
 		dash: dash_manifest,

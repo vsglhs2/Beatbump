@@ -15,6 +15,14 @@ services:
       - /var/tmp/youtubei.js:/var/tmp/youtubei.js:rw
     security_opt:
       - no-new-privileges:true
+
+  proxy:
+    build:
+      context: proxy
+      dockerfile: Dockerfile
+    ports:
+      - 3001:3001
+
   beatbump:
     build:
       context: .
@@ -27,7 +35,7 @@ services:
       - invidious_companion
     
   caddy:
-    image: caddy:<version>
+    image: caddy:2
     restart: unless-stopped
     cap_add:
       - NET_ADMIN
@@ -35,10 +43,14 @@ services:
       - "80:80"
       - "443:443"
       - "443:443/udp"
+    environment:
+      - DOMAIN=${CADDY_DOMAIN}
+      - EMAIL=${CADDY_EMAIL}
+      - LOG_FILE=/data/access.log
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
-      - caddy_data:/data
-      - caddy_config:/config
+      - ./caddy_data:/data
+      - ./caddy_config:/config
     profiles: [server]
 
 volumes:
