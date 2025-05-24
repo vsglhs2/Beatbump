@@ -1,2 +1,3 @@
 beat-server
 build/
+.env
