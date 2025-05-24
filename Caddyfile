@@ -15,11 +15,11 @@
   # abort @blocked
 
   @audio_proxy {
-		path /api/v1/proxy /api/v1/proxy/*
+		path /api/v1/proxy 
 	}
 
-  reverse_proxy @audio_proxy proxy:3001 {
-    header_up X-Real-IP {remote_host}
+  handle_path /api/v1/proxy* {
+    reverse_proxy http://proxy:3001
   }
  
   reverse_proxy beatbump:8080 {
