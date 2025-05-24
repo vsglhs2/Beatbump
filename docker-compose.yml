@@ -33,26 +33,4 @@ services:
       - 8080:8080
     depends_on:
       - invidious_companion
-    
-  caddy:
-    image: caddy:2
-    restart: unless-stopped
-    cap_add:
-      - NET_ADMIN
-    ports:
-      - "80:80"
-      - "443:443"
-      - "443:443/udp"
-    environment:
-      - DOMAIN=${CADDY_DOMAIN}
-      - EMAIL=${CADDY_EMAIL}
-      - LOG_FILE=/data/access.log
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile
-      - ./caddy_data:/data
-      - ./caddy_config:/config
-    profiles: [server]
-
-volumes:
-  caddy_data:
-  caddy_config:
+  

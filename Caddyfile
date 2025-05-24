@@ -1,3 +1,54 @@
+{
+  order authenticate before respond
+	order authorize before basicauth
+
+  security {
+		local identity store localdb {
+			realm local
+			path /etc/caddy/users.json
+
+      user {$USER} {
+        name {$USER}
+        email {$EMAIL}
+        password "${PASSWORD}" overwrite
+        roles authp/admin authp/user
+      }
+		}
+
+		authentication portal myportal {
+			crypto default token lifetime 3600
+			crypto key sign-verify {env.JWT_SHARED_KEY}
+
+			enable identity store localdb
+		}
+
+
+		authorization policy admins_policy {
+			set auth url https://auth.{$DOMAIN}/
+			allow roles authp/admin authp/user
+			crypto key verify {env.JWT_SHARED_KEY}
+
+			acl rule {
+				comment allow users
+				match role authp/user
+				allow stop log info
+			}
+
+			acl rule {
+				comment default deny
+				match any
+				deny log warn
+			}
+		}
+  }
+}
+
+auth.{$DOMAIN} {
+  route {
+    authenticate with myportal
+  }
+}
+
 {$DOMAIN} {
   log {
     level INFO
@@ -10,19 +61,17 @@
   tls {$EMAIL}
   encode zstd gzip
 
-  # TODO: add a more handy way to allow only whitelist ips
-  # @blocked not remote_ip some-ip
-  # abort @blocked
-
-  @audio_proxy {
-		path /api/v1/proxy 
-	}
+  authenticate with myportal
 
   handle_path /api/v1/proxy* {
+    authorize with mypolicy
+
     reverse_proxy http://proxy:3001
   }
  
-  reverse_proxy beatbump:8080 {
-    header_up X-Real-IP {remote_host}
+  route {
+    authorize with mypolicy
+
+    reverse_proxy http://beatbump:8080
   }
 }

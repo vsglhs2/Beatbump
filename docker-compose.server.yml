@@ -1,0 +1,29 @@
+include:
+  - docker-compose.yml
+
+services:
+  caddy:
+    # image: caddy:2 for unauthed access
+    image: ghcr.io/authcrunch/authcrunch:latest
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      - DOMAIN=${CADDY_DOMAIN}
+      - EMAIL=${CADDY_EMAIL}
+      - USER=${CADDY_USERNAME}
+      - PASSWORD=${CADDY_PASSWORD}
+      - LOG_FILE=/data/access.log
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - ./caddy_data:/data
+      - ./caddy_config:/config
+
+volumes:
+  caddy_data:
+  caddy_config:
+  Caddyfile:
