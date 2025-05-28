@@ -1,18 +1,18 @@
 {
-  order authenticate before respond
+	order authenticate before respond
 	order authorize before basicauth
 
-  security {
+	security {
 		local identity store localdb {
 			realm local
 			path /etc/caddy/users.json
 
-      user {$USER} {
-        name {$USER}
-        email {$EMAIL}
-        password "${PASSWORD}" overwrite
-        roles authp/admin authp/user
-      }
+			user {$USER} {
+				name {$USER}
+				email {$EMAIL}
+				password "{$PASSWORD}" overwrite
+				roles authp/admin authp/user
+			}
 		}
 
 		authentication portal myportal {
@@ -39,38 +39,38 @@
 				deny log warn
 			}
 		}
-  }
+	}
 }
 
 auth.{$DOMAIN} {
-  route {
-    authenticate with myportal
-  }
+	route {
+		authenticate with myportal
+	}
 }
 
 {$DOMAIN} {
-  log {
-    level INFO
-    output file {$LOG_FILE} {
-      roll_size 10MB
-      roll_keep 10
-    }
-  }
+	log {
+		level INFO
+		output file {$LOG_FILE} {
+			roll_size 10MB
+			roll_keep 10
+		}
+	}
 
-  tls {$EMAIL}
-  encode zstd gzip
+	tls {$EMAIL}
+	encode zstd gzip
 
-  authenticate with myportal
+	authenticate with myportal
 
-  handle_path /api/v1/proxy* {
-    authorize with mypolicy
+	handle_path /api/v1/proxy* {
+		authorize with mypolicy
 
-    reverse_proxy http://proxy:3001
-  }
- 
-  route {
-    authorize with mypolicy
+		reverse_proxy http://proxy:3001
+	}
 
-    reverse_proxy http://beatbump:8080
-  }
+	route {
+		authorize with mypolicy
+
+		reverse_proxy http://beatbump:8080
+	}
 }
