@@ -22,8 +22,7 @@
 			enable identity store localdb
 		}
 
-
-		authorization policy admins_policy {
+		authorization policy mypolicy {
 			set auth url https://auth.{$DOMAIN}/
 			allow roles authp/admin authp/user
 			crypto key verify {env.JWT_SHARED_KEY}

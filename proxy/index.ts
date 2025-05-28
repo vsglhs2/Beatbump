@@ -2,6 +2,8 @@ import { serve } from "https://deno.land/std@0.123.0/http/server.ts";
 
 const port = 3001;
 
+// TODO: set Access-Control-Allow-Origin to only frontend domain (maybe backend as well)
+
 const handler = async (request: Request): Promise<Response> => {
   const { pathname, searchParams, origin } = new URL(request.url);
   const host = searchParams.get("host") || "";
@@ -40,11 +42,12 @@ const handler = async (request: Request): Promise<Response> => {
 
     const _api = searchParams.get("host") as string;
 
+    const protocol = origin.includes("localhost") ? "http://" : "https://";
     request = new Request(
-      request.url.replace(origin, "https://" + _api),
+      request.url.replace(origin, protocol + _api),
       request,
     );
-    request.headers.set("Origin", "https://" + _api);
+    request.headers.set("Origin", protocol + _api);
 
     let response = await fetch(request);
 
