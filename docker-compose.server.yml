@@ -17,6 +17,7 @@ services:
       - EMAIL=${CADDY_EMAIL}
       - USER=${CADDY_USERNAME}
       - PASSWORD=${CADDY_PASSWORD}
+      - JWT=${JWT_SHARED_KEY}
       - LOG_FILE=/data/access.log
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
